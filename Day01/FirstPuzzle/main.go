@@ -12,6 +12,15 @@ func pulseIncreased(previous int, current int) bool {
 	return previous < current
 }
 
+func isFirstMeasurement(previousMeasurement *int, measure string) bool {
+	if *previousMeasurement == 0 {
+		*previousMeasurement = convertToInteger(measure)
+		return true
+	}
+
+	return false
+}
+
 func convertToInteger(line string) int {
 	trimmedLine := strings.TrimSuffix(line, "\n")
 	converted, err := strconv.Atoi(trimmedLine)
@@ -49,18 +58,23 @@ func main() {
 	previousMeasurement, currentMeasurement, result := 0, 0, 0
 	for scanner.Scan() {
 		measure := scanner.Text()
-		if previousMeasurement == 0 {
-			previousMeasurement = convertToInteger(measure)
+		if isFirstMeasurement(&previousMeasurement, measure) {
 			continue
 		}
 
 		currentMeasurement = convertToInteger(measure)
-		if pulseIncreased(previousMeasurement, currentMeasurement) {
-			result++
-		}
+
+		calculateDepthIncrease(previousMeasurement, currentMeasurement, &result)
 
 		previousMeasurement = currentMeasurement
 	}
 
 	fmt.Printf("[INFO] The obtained result is: %v", result)
+}
+
+func calculateDepthIncrease(previousMeasurement, currentMeasurement int, result *int) {
+
+	if pulseIncreased(previousMeasurement, currentMeasurement) {
+		*result += 1
+	}
 }
